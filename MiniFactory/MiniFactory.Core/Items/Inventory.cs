@@ -9,8 +9,9 @@ public class Inventory
         {
             for(int j = 0; j < rows; j++)
             {
-                Slots[i, j] = new InventorySlot();
+                Slots[i, j] = new InventorySlot(ItemType.EmptySlot, 0);
             }
         }
+        Slots[0, 0] = new InventorySlot(ItemType.Stone, 5);
     }
 }

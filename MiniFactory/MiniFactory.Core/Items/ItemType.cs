@@ -9,5 +9,8 @@ public enum ItemType
     //300 - 599 buildable
     MinerTierOne = 300,
     FurnaceTierOne = 301,
-    BeltTier = 302
+    BeltTier = 302,
+
+    //Logic
+    EmptySlot = 1000
 }

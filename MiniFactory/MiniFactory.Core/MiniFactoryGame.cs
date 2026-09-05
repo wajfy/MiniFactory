@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using static System.Net.Mime.MediaTypeNames;
+using System.Runtime.CompilerServices;
 
 namespace MiniFactory.Core
 {
@@ -35,17 +36,34 @@ namespace MiniFactory.Core
         private Vector2 currentMousePos;
         private Point currentMousePosGrid;
 
+        //keyboard
+        private KeyboardState previousKeyboard;
+
         //mining
         private float miningProgress = 0f;
 
         //border
         const int borderThickness = 4;
-        Color borderColor = Color.Yellow;
 
         //progress bar
         const int barWidth = 60;
         const int barHeight = 10;
         const int barVerticalOffset = 20;
+
+        //inventory
+        private bool inventoryOpen = false;
+        private const int slotSize = 36;
+        private const int slotSpacing = 8;
+        private Texture2D panelCornerTexture;
+        private float inventorySlide = 0f;
+        private float slideSpeed = 4f;
+
+        //colors
+        Color panelBackground = new Color(27, 38, 59);    // tmavě námořnická modrá — pozadí panelu
+        Color slotColor = new Color(42, 63, 90);    // střední modrá — prázdný slot
+        Color slotBorder = new Color(62, 92, 118);   // světlejší modrá — okraj slotu / hover
+        Color textColor = new Color(232, 236, 239); // téměř bílá — text, kontrast na tmavém pozadí
+        Color accent = new Color(255, 190, 60);  // teplá zlatá/oranžová — zvýraznění (progress bar, vybraný slot)
 
         /// <summary>
         /// Indicates if the game is running on a mobile platform.
@@ -82,6 +100,7 @@ namespace MiniFactory.Core
         protected override void Initialize()
         {
             IsMouseVisible = true;
+
             base.Initialize();
 
             // Load supported languages and set the default language.
@@ -110,11 +129,15 @@ namespace MiniFactory.Core
 
             player = new Player(new Vector2(400, 240), pixel);
             world = new World();
+
             oreDeposit = new OreDeposit(2, 2);
             oreDeposit.RegisterInWorld(world);
 
+            panelCornerTexture = Content.Load<Texture2D>("square");
+
             font = Content.Load<SpriteFont>("Fonts/Hud");
 
+            ItemDatabase.LoadContent(Content);
             base.LoadContent();
         }
 
@@ -171,6 +194,19 @@ namespace MiniFactory.Core
                 inRange = false;
             }
 
+            KeyboardState keyboard = Keyboard.GetState();
+
+            if (keyboard.IsKeyDown(Keys.Tab) && previousKeyboard.IsKeyUp(Keys.Tab))
+            {
+                inventoryOpen = !inventoryOpen;
+            }
+            if (inventoryOpen)
+                inventorySlide = Math.Min(1f, inventorySlide + slideSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds);
+            else
+                inventorySlide = Math.Max(0f, inventorySlide - slideSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds);
+
+            previousKeyboard = keyboard;
+
             base.Update(gameTime);
         }
 
@@ -183,7 +219,7 @@ namespace MiniFactory.Core
         protected override void Draw(GameTime gameTime)
         {
             // Clears the screen with the MonoGame orange color before drawing.
-            GraphicsDevice.Clear(Color.LightBlue);
+            GraphicsDevice.Clear(Color.Green);
 
             _spriteBatch.Begin();
 
@@ -200,14 +236,7 @@ namespace MiniFactory.Core
 
                 if (inRange)
                 {
-                    // horní hrana
-                    _spriteBatch.Draw(pixel, new Rectangle((int)corner.X, (int)corner.Y, World.TileSize, borderThickness), borderColor);
-                    // dolní hrana
-                    _spriteBatch.Draw(pixel, new Rectangle((int)corner.X, (int)corner.Y + World.TileSize - borderThickness, World.TileSize, borderThickness), borderColor);
-                    // levá hrana
-                    _spriteBatch.Draw(pixel, new Rectangle((int)corner.X, (int)corner.Y, borderThickness, World.TileSize), borderColor);
-                    // pravá hrana
-                    _spriteBatch.Draw(pixel, new Rectangle((int)corner.X + World.TileSize - borderThickness, (int)corner.Y, borderThickness, World.TileSize), borderColor);
+                    _spriteBatch.DrawHollowRect(pixel, corner, accent, borderThickness);
                 }
             }
 
@@ -215,6 +244,38 @@ namespace MiniFactory.Core
             {
                 _spriteBatch.Draw(pixel, new Rectangle((int)currentMousePos.X - (barWidth / 2) - 4, (int)currentMousePos.Y - barVerticalOffset - 4, barWidth + 8, barHeight + 8), Color.Black);
                 _spriteBatch.Draw(pixel, new Rectangle((int)currentMousePos.X - (barWidth / 2), (int)currentMousePos.Y - barVerticalOffset, (int)(barWidth * (miningProgress / currentResourceTile.MiningDuration)), barHeight), Color.LimeGreen);
+            }
+
+            if (inventorySlide > 0f)
+            {
+                int columns = player.Inventory.Slots.GetLength(0);
+                int rows = player.Inventory.Slots.GetLength(1);
+
+                int panelWidth = columns * slotSize + (columns + 1) * slotSpacing;
+                int panelHeight = rows * slotSize + (rows + 1) * slotSpacing;
+
+                float y = MathHelper.Lerp(GraphicsDevice.Viewport.Height, GraphicsDevice.Viewport.Height - panelHeight, inventorySlide);
+                Point inventoryTopLeft = new Point((GraphicsDevice.Viewport.Width / 2) - (panelWidth / 2), (int)y);
+
+                _spriteBatch.DrawRoundedRect(pixel, panelCornerTexture, new Rectangle(inventoryTopLeft.X, inventoryTopLeft.Y, panelWidth, panelHeight), panelBackground);
+                for (int i = 0; i < columns; i++)
+                {
+                    for (int j = 0; j < rows; j++)
+                    {
+                        InventorySlot slot = player.Inventory.Slots[i, j];
+                        Rectangle slotRectangle = new Rectangle(inventoryTopLeft.X + slotSpacing + i * (slotSize + slotSpacing), inventoryTopLeft.Y + slotSpacing + j * (slotSize + slotSpacing), slotSize, slotSize);
+                        _spriteBatch.DrawRoundedRect(pixel, panelCornerTexture, slotRectangle, slotColor);
+                        if (slot.Count > 0)
+                        {
+                            Texture2D itemTexture = ItemDatabase.Get(slot.Type).ItemTexture;
+                            float scale = 0.8f;
+                            Vector2 textSize = font.MeasureString(slot.Count.ToString());
+                            float textY = slotRectangle.Bottom - textSize.Y * scale;
+                            _spriteBatch.Draw(itemTexture, slotRectangle, Color.White);
+                            _spriteBatch.DrawString(font, slot.Count.ToString(), new Vector2(slotRectangle.X, textY), textColor, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+                        }
+                    }
+                }
             }
 
             _spriteBatch.End();
