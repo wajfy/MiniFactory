@@ -1,0 +1,45 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+
+# Visual Studio / Rider / VS Code
+.vs/
+.vscode/*
+!.vscode/launch.json
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# NuGet
+*.nupkg
+**/packages/*
+!**/packages/build/
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Mobile / platform-specific build artifacts
+*.apk
+*.ipa
+*.dSYM/
+*.ipa.dSYM.zip
+
+# Claude Code local settings
+.claude/settings.local.json
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Rider
+*.DotSettings.user
+
+# dotnet
+*.pdb
+*.cache
