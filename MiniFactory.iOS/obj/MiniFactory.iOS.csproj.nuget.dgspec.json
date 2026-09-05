@@ -1,0 +1,175 @@
+{
+  "format": 1,
+  "restore": {
+    "/Users/jakub/Programming/MonoGame/MiniFactory/MiniFactory/MiniFactory.iOS/MiniFactory.iOS.csproj": {}
+  },
+  "projects": {
+    "/Users/jakub/Programming/MonoGame/MiniFactory/MiniFactory/MiniFactory.Core/MiniFactory.Core.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/jakub/Programming/MonoGame/MiniFactory/MiniFactory/MiniFactory.Core/MiniFactory.Core.csproj",
+        "projectName": "MiniFactory.Core",
+        "projectPath": "/Users/jakub/Programming/MonoGame/MiniFactory/MiniFactory/MiniFactory.Core/MiniFactory.Core.csproj",
+        "packagesPath": "/Users/jakub/.nuget/packages/",
+        "outputPath": "/Users/jakub/Programming/MonoGame/MiniFactory/MiniFactory/MiniFactory.Core/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/jakub/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0": {
+            "framework": "net9.0",
+            "targetAlias": "net9.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.400"
+      },
+      "frameworks": {
+        "net9.0": {
+          "framework": "net9.0",
+          "targetAlias": "net9.0",
+          "dependencies": {
+            "MonoGame.Framework.DesktopGL": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[3.8.*, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.400/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "/Users/jakub/Programming/MonoGame/MiniFactory/MiniFactory/MiniFactory.iOS/MiniFactory.iOS.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "/Users/jakub/Programming/MonoGame/MiniFactory/MiniFactory/MiniFactory.iOS/MiniFactory.iOS.csproj",
+        "projectName": "MiniFactory.iOS",
+        "projectPath": "/Users/jakub/Programming/MonoGame/MiniFactory/MiniFactory/MiniFactory.iOS/MiniFactory.iOS.csproj",
+        "packagesPath": "/Users/jakub/.nuget/packages/",
+        "outputPath": "/Users/jakub/Programming/MonoGame/MiniFactory/MiniFactory/MiniFactory.iOS/obj/",
+        "projectStyle": "PackageReference",
+        "configFilePaths": [
+          "/Users/jakub/.nuget/NuGet/NuGet.Config"
+        ],
+        "originalTargetFrameworks": [
+          "net9.0-ios"
+        ],
+        "sources": {
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net9.0-ios": {
+            "framework": "net9.0-ios26.5",
+            "targetAlias": "net9.0-ios",
+            "projectReferences": {
+              "/Users/jakub/Programming/MonoGame/MiniFactory/MiniFactory/MiniFactory.Core/MiniFactory.Core.csproj": {
+                "projectPath": "/Users/jakub/Programming/MonoGame/MiniFactory/MiniFactory/MiniFactory.Core/MiniFactory.Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "10.0.400"
+      },
+      "frameworks": {
+        "net9.0-ios": {
+          "framework": "net9.0-ios26.5",
+          "targetAlias": "net9.0-ios",
+          "dependencies": {
+            "Microsoft.NET.ILLink.Tasks": {
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.19, )",
+              "autoReferenced": true
+            },
+            "MonoGame.Content.Builder.Task": {
+              "target": "Package",
+              "version": "[3.8.*, )"
+            },
+            "MonoGame.Framework.iOS": {
+              "target": "Package",
+              "version": "[3.8.*, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "downloadDependencies": [
+            {
+              "name": "Microsoft.iOS.Ref.net9.0_26.5",
+              "version": "[26.5.9004, 26.5.9004]"
+            },
+            {
+              "name": "Microsoft.iOS.Runtime.iossimulator-arm64.net9.0_26.5",
+              "version": "[26.5.9004, 26.5.9004]"
+            }
+          ],
+          "frameworkReferences": {
+            "Microsoft.iOS": {
+              "privateAssets": "all"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/10.0.400/PortableRuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "iossimulator-arm64": {
+          "#import": []
+        }
+      }
+    }
+  }
+}

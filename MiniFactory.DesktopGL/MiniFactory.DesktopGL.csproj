@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0</TargetFramework>
+    <PublishReadyToRun>false</PublishReadyToRun>
+    <TieredCompilation>false</TieredCompilation>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <ApplicationIcon>../MiniFactory.Core/Content/Icon.ico</ApplicationIcon>
+    <AssemblyName>MiniFactory</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <MonoGameContentReference Include="..\MiniFactory.Core\Content\MiniFactory.mgcb">
+      <Link>Content\MiniFactory.mgcb</Link>
+    </MonoGameContentReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MiniFactory.Core\MiniFactory.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.*" />
+    <PackageReference Include="MonoGame.Content.Builder.Task" Version="3.8.*" />
+  </ItemGroup>
+</Project>
