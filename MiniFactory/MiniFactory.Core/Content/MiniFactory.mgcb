@@ -18,7 +18,7 @@
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
 /processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
+/processorParam:GenerateMipmaps=True
 /processorParam:PremultiplyAlpha=True
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
@@ -30,7 +30,7 @@
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
 /processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
+/processorParam:GenerateMipmaps=True
 /processorParam:PremultiplyAlpha=True
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
@@ -44,12 +44,26 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/Hud.spritefont
 
+#begin Fonts/HudMedium.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/HudMedium.spritefont
+
+#begin Fonts/HudSmall.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/HudSmall.spritefont
+
 #begin iron_ore.png
 /importer:TextureImporter
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
 /processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
+/processorParam:GenerateMipmaps=True
 /processorParam:PremultiplyAlpha=True
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False
@@ -73,7 +87,7 @@
 /processor:TextureProcessor
 /processorParam:ColorKeyColor=255,0,255,255
 /processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
+/processorParam:GenerateMipmaps=True
 /processorParam:PremultiplyAlpha=True
 /processorParam:ResizeToPowerOfTwo=False
 /processorParam:MakeSquare=False

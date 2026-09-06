@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="512"
+   height="512"
+   viewBox="0 0 135.46667 135.46667"
+   version="1.1"
+   id="svg1"
+   inkscape:export-filename="coal.png"
+   inkscape:export-xdpi="96"
+   inkscape:export-ydpi="96"
+   inkscape:export-batch-name=""
+   inkscape:export-batch-path="/Users/jakub/Programming/MonoGame/MiniFactory/RawAssets"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
+   sodipodi:docname="icons.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#505050"
+     bordercolor="#ffffff"
+     borderopacity="1"
+     inkscape:showpageshadow="0"
+     inkscape:pageopacity="0"
+     inkscape:pagecheckerboard="1"
+     inkscape:deskcolor="#505050"
+     inkscape:document-units="mm"
+     inkscape:zoom="1.0220477"
+     inkscape:cx="204.98065"
+     inkscape:cy="257.81576"
+     inkscape:window-width="1440"
+     inkscape:window-height="766"
+     inkscape:window-x="1389"
+     inkscape:window-y="30"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg1" />
+  <defs
+     id="defs1">
+    <linearGradient
+       id="swatch6"
+       inkscape:swatch="solid">
+      <stop
+         style="stop-color:#8e7c73;stop-opacity:1;"
+         offset="0"
+         id="stop6" />
+    </linearGradient>
+  </defs>
+  <path
+     style="display:inline;fill:#818080;fill-opacity:1;stroke:#000000;stroke-width:10.58333333;stroke-dasharray:none;stroke-opacity:1"
+     d="M 6.5924589,98.963328 13.859931,50.327164 48.70653,21.443619 l 41.555034,-6.149401 26.647396,6.708437 8.75825,19.379926 1.30441,26.461054 -1.86346,23.293182 -7.82651,17.143783 -21.988762,10.43534 -43.418484,1.86345 -19.193583,-3.16787 z"
+     id="path17"
+     inkscape:label="stone" />
+  <path
+     style="display:inline;fill:#eb9355;fill-opacity:1;stroke:#000000;stroke-width:10.58333333;stroke-dasharray:none;stroke-opacity:1"
+     d="M 6.5924589,98.963328 13.859931,50.327164 48.70653,21.443619 l 41.555034,-6.149401 26.647396,6.708437 8.75825,19.379926 1.30441,26.461054 -1.86346,23.293182 -7.82651,17.143783 -21.988762,10.43534 -43.418484,1.86345 -19.193583,-3.16787 z"
+     id="path16"
+     inkscape:label="iron_ore" />
+  <path
+     style="display:inline;fill:#101010;fill-opacity:1;stroke:#000000;stroke-width:10.5833;stroke-dasharray:none;stroke-opacity:1"
+     d="M 6.5924589,98.963328 13.859931,50.327164 48.70653,21.443619 l 41.555034,-6.149401 26.647396,6.708437 8.75825,19.379926 1.30441,26.461054 -1.86346,23.293182 -7.82651,17.143783 -21.988762,10.43534 -43.418484,1.86345 -19.193583,-3.16787 z"
+     id="path19"
+     inkscape:label="coal" />
+  <path
+     style="display:inline;fill:#ec571d;fill-opacity:1;stroke:#000000;stroke-width:10.5833;stroke-dasharray:none;stroke-opacity:1"
+     d="M 6.5924589,98.963328 13.859931,50.327164 48.70653,21.443619 l 41.555034,-6.149401 26.647396,6.708437 8.75825,19.379926 1.30441,26.461054 -1.86346,23.293182 -7.82651,17.143783 -21.988762,10.43534 -43.418484,1.86345 -19.193583,-3.16787 z"
+     id="path18"
+     inkscape:label="copper_ore" />
+</svg>

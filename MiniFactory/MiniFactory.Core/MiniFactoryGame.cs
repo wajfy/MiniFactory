@@ -24,10 +24,13 @@ namespace MiniFactory.Core
         private Player player;
         private World world;
         private OreDeposit oreDeposit;
+        private OreDeposit IronDeposit;
 
         //textures and resources
         private Texture2D pixel;
-        private SpriteFont font;
+        private SpriteFont fontSmall;
+        private SpriteFont fontMedium;
+        private SpriteFont fontLarge;
 
         //mouse
         private ResourceTile currentResourceTile;
@@ -82,8 +85,11 @@ namespace MiniFactory.Core
         /// </summary>
         public MiniFactoryGame()
         {
-            graphicsDeviceManager = new GraphicsDeviceManager(this);
-
+            graphicsDeviceManager = new GraphicsDeviceManager(this)
+            {
+                PreferredBackBufferWidth = 800,
+                PreferredBackBufferHeight = 480
+            };
             // Share GraphicsDeviceManager as a service.
             Services.AddService(typeof(GraphicsDeviceManager), graphicsDeviceManager);
 
@@ -130,12 +136,17 @@ namespace MiniFactory.Core
             player = new Player(new Vector2(400, 240), pixel);
             world = new World();
 
-            oreDeposit = new OreDeposit(2, 2);
+            oreDeposit = new OreDeposit(0, 0);
             oreDeposit.RegisterInWorld(world);
+
+            IronDeposit = new OreDeposit(5, 5, 5, 5, ItemType.IronOre);
+            IronDeposit.RegisterInWorld(world);
 
             panelCornerTexture = Content.Load<Texture2D>("square");
 
-            font = Content.Load<SpriteFont>("Fonts/Hud");
+            fontSmall = Content.Load<SpriteFont>("Fonts/HudSmall");
+            fontMedium = Content.Load<SpriteFont>("Fonts/HudMedium");
+            fontLarge = Content.Load<SpriteFont>("Fonts/Hud");
 
             ItemDatabase.LoadContent(Content);
             base.LoadContent();
@@ -177,6 +188,7 @@ namespace MiniFactory.Core
                     {
                         miningProgress = 0;
                         currentResourceTile.Remaining -= 1;
+                        player.Inventory.TryAddItem(currentResourceTile.Type);
                         if (currentResourceTile.Remaining == 0)
                         {
                             world.Resources.Remove(currentMousePosGrid);
@@ -228,9 +240,8 @@ namespace MiniFactory.Core
 
             if (currentResourceTile != null)
             {
-                _spriteBatch.DrawString(font, currentResourceTile.Type.ToString(), new Vector2(10, 10), Color.White);
-                _spriteBatch.DrawString(font, currentResourceTile.Remaining.ToString(), new Vector2(10, 40), Color.White);
-                _spriteBatch.DrawString(font, "In range: " + inRange, new Vector2(10, 70), Color.White);
+                _spriteBatch.DrawString(fontMedium, currentResourceTile.Type.ToString(), new Vector2(10, 10), textColor);
+                _spriteBatch.DrawString(fontMedium, currentResourceTile.Remaining.ToString(), new Vector2(10, 60), textColor);
 
                 Vector2 corner = World.GridToPixel(currentMousePosGrid);
 
@@ -248,8 +259,8 @@ namespace MiniFactory.Core
 
             if (inventorySlide > 0f)
             {
-                int columns = player.Inventory.Slots.GetLength(0);
-                int rows = player.Inventory.Slots.GetLength(1);
+                int rows = player.Inventory.Slots.GetLength(0);
+                int columns = player.Inventory.Slots.GetLength(1);
 
                 int panelWidth = columns * slotSize + (columns + 1) * slotSpacing;
                 int panelHeight = rows * slotSize + (rows + 1) * slotSpacing;
@@ -258,23 +269,33 @@ namespace MiniFactory.Core
                 Point inventoryTopLeft = new Point((GraphicsDevice.Viewport.Width / 2) - (panelWidth / 2), (int)y);
 
                 _spriteBatch.DrawRoundedRect(pixel, panelCornerTexture, new Rectangle(inventoryTopLeft.X, inventoryTopLeft.Y, panelWidth, panelHeight), panelBackground);
+                
+                ItemDefinition hoveredItem = null;
                 for (int i = 0; i < columns; i++)
                 {
                     for (int j = 0; j < rows; j++)
                     {
-                        InventorySlot slot = player.Inventory.Slots[i, j];
+                        InventorySlot slot = player.Inventory.Slots[j, i];
                         Rectangle slotRectangle = new Rectangle(inventoryTopLeft.X + slotSpacing + i * (slotSize + slotSpacing), inventoryTopLeft.Y + slotSpacing + j * (slotSize + slotSpacing), slotSize, slotSize);
                         _spriteBatch.DrawRoundedRect(pixel, panelCornerTexture, slotRectangle, slotColor);
                         if (slot.Count > 0)
                         {
                             Texture2D itemTexture = ItemDatabase.Get(slot.Type).ItemTexture;
-                            float scale = 0.8f;
-                            Vector2 textSize = font.MeasureString(slot.Count.ToString());
-                            float textY = slotRectangle.Bottom - textSize.Y * scale;
+                            Vector2 textSize = fontSmall.MeasureString(slot.Count.ToString());
+                            float textY = slotRectangle.Bottom - textSize.Y;
                             _spriteBatch.Draw(itemTexture, slotRectangle, Color.White);
-                            _spriteBatch.DrawString(font, slot.Count.ToString(), new Vector2(slotRectangle.X, textY), textColor, 0f, Vector2.Zero, scale, SpriteEffects.None, 0f);
+                            _spriteBatch.DrawString(fontSmall, slot.Count.ToString(), new Vector2(slotRectangle.X, (int)textY), textColor);
                         }
+
+                        if (slotRectangle.Contains(currentMousePos) && slot.Count > 0)
+                            hoveredItem = ItemDatabase.Get(slot.Type);
                     }
+                }
+                if (hoveredItem != null)
+                {
+                    Vector2 boxTextSize = fontMedium.MeasureString(hoveredItem.Name);
+                    _spriteBatch.Draw(pixel, new Rectangle((int)currentMousePos.X - ((int)boxTextSize.X / 2), (int)currentMousePos.Y, (int)boxTextSize.X, (int)boxTextSize.Y), new Color(0, 0, 0, 180));
+                    _spriteBatch.DrawString(fontMedium, hoveredItem.Name, new Vector2((int)currentMousePos.X - ((int)boxTextSize.X / 2), (int)currentMousePos.Y), textColor);
                 }
             }
 

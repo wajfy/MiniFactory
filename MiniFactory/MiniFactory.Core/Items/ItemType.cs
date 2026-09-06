@@ -3,8 +3,8 @@ public enum ItemType
     //0 - 299 resources
     Stone = 0,
     Coal = 1,
-    Iron = 2,
-    Copper = 3,
+    IronOre = 2,
+    CopperOre = 3,
     
     //300 - 599 buildable
     MinerTierOne = 300,

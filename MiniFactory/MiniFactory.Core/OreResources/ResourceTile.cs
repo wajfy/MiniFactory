@@ -34,9 +34,9 @@ public class ResourceTile
                 return Color.Gray;
             case ItemType.Coal:
                 return Color.Black;
-            case ItemType.Iron:
+            case ItemType.IronOre:
                 return Color.SandyBrown;
-            case ItemType.Copper:
+            case ItemType.CopperOre:
                 return Color.OrangeRed;
             default:
                 return Color.Pink;
