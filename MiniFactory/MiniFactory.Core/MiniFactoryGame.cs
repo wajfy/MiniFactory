@@ -328,9 +328,9 @@ namespace MiniFactory.Core
                 }
                 if (hoveredItem != null)
                 {
-                    Vector2 boxTextSize = fontMedium.MeasureString(hoveredItem.Name);
+                    Vector2 boxTextSize = fontSmall.MeasureString(hoveredItem.Name);
                     _spriteBatch.Draw(pixel, new Rectangle((int)currentMousePos.X - ((int)boxTextSize.X / 2), (int)currentMousePos.Y, (int)boxTextSize.X, (int)boxTextSize.Y), new Color(0, 0, 0, 180));
-                    _spriteBatch.DrawString(fontMedium, hoveredItem.Name, new Vector2((int)currentMousePos.X - ((int)boxTextSize.X / 2), (int)currentMousePos.Y), textColor);
+                    _spriteBatch.DrawString(fontSmall, hoveredItem.Name, new Vector2((int)currentMousePos.X - ((int)boxTextSize.X / 2), (int)currentMousePos.Y), textColor);
                 }
                 if (draggingRow.HasValue && draggingCol.HasValue)
                 {
