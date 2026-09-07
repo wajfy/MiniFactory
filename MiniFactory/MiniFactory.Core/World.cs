@@ -1,10 +1,7 @@
 using System;
-using MiniFactory.Core.Localization;
 using System.Collections.Generic;
-using System.Globalization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 public class World
 {
@@ -35,14 +32,20 @@ public class World
     }
     public void Update(GameTime gameTime)
     {
-        
+
     }
 
     public void Draw(SpriteBatch spriteBatch, Texture2D texture)
     {
-        foreach(var resource in Resources)
+        foreach (var resource in Resources)
         {
             resource.Value.Draw(spriteBatch, GridToPixel(resource.Key), texture);
         }
+    }
+
+    public void RemoveIfDepleted(Point gridPos)
+    {
+        if (Resources.TryGetValue(gridPos, out ResourceTile tile) && tile.Remaining <= 0)
+            Resources.Remove(gridPos);
     }
 }

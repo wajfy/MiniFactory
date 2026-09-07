@@ -56,6 +56,9 @@ Legenda: `[x]` hotovo, `[~]` rozděláno/částečně, `[ ]` nezačato.
 - [x] Propojení s inventářem (`player.Inventory.TryAddItem`)
 - [ ] Rozdílná doba těžby podle suroviny — `MiningDuration` je teď natvrdo `5f` pro **všechny** typy (kámen, uhlí, železo, měď těží stejně rychle). Potřeba upravit, aby každý `ItemType`/surovina měla vlastní čas těžby, ne jednu sdílenou hodnotu.
 
+**Drobné chybky k opravě (zatím nehoří, ale je o nich vědět):**
+- [ ] Těžba funguje i "skrz" otevřené UI (např. inventář) — když je myš nad UI panelem, těžba by neměla fungovat. Pozor, neřešit to jako "těžba nefunguje, když je inventář otevřený" (to by bylo zbytečně omezující) — jde jen o to, že myš nesmí být zrovna nad nějakým UI prvkem, jinak by mělo jít normálně těžit i s otevřeným inventářem
+
 ## Itemy
 
 - [x] `ItemType` enum (rezervované rozsahy: suroviny 0–299, stavitelné 300–599)
@@ -86,19 +89,23 @@ Hotovo zatím (samotný inventářový panel):
 - [x] Vlastní fonty ve 3 velikostech (`fontSmall`/`fontMedium`/`fontLarge`) místo runtime `scale`
 - [ ] Tooltip — cena/popis (teď jen název) **[TBD]** — chceme zobrazit i `Description`/`Price`?
 - [x] Přesouvání itemů mezi sloty (drag & drop) — swap i slučování stejného typu s ohledem na `StackSize`
-  - [ ] Drobný dodělek: tažení by mělo jít začít jen z neprázdného slotu (`slot.Count > 0`), teď jde "tahat" i prázdný slot
+  - [x] Tažení jde začít jen z neprázdného slotu (`slot.Count > 0`)
 - [ ] Co se stane, když je inventář plný a nejde přidat další item **[TBD]**
 
-## Refactor `MiniFactoryGame.cs`
+**Drobné chybky k opravě (zatím nehoří, ale je o nich vědět):**
+- [ ] Hover tooltip (název itemu) by se neměl zobrazovat, když zrovna probíhá drag & drop — teď se ukáže i nad itemem, co zrovna táhneš/nad slotem, přes který s ním projíždíš
 
-Naplánováno hned po dokončení inventáře. Třída teď má přes 300 řádků a `Update`/`Draw`
-obsahují hodně přímé logiky, místo aby jen volaly `NěcoJiného.Update()`/`.Draw()`
-(tak, jak už to funguje pro `world`/`player`). Cíl: `MiniFactoryGame` by měl fungovat hlavně
-jako orchestrátor, ne místo, kde žije implementace.
+## Refactor `MiniFactoryGame.cs` ✅
 
-- [ ] Projít celý soubor a najít, co jde vytáhnout do vlastních tříd (nejnápadnější kandidát: inventářové UI — panel, sloty, drag & drop, tooltip — ale platí to obecně, kdekoliv to dá smysl, ne jen u inventáře)
-- [ ] Mining logika (hover/dosah/progress) je taky přímo v `Update`/`Draw` — zvážit, jestli si nezaslouží vlastní místo
-- [ ] Cíl: v `Update`/`Draw` hlavně volání jako `inventoryUI.Update(...)`, `inventoryUI.Draw(...)`, podobně jako `world.Draw(...)`/`player.Draw(...)` teď
+Hotovo (větev `refactor`). `MiniFactoryGame.cs` kleslo z ~345 na ~180 řádků, `Update`/`Draw`
+jsou teď čistý orchestrátor:
+
+- [x] Mining logika (hover/dosah/progress/dokončení) přesunuta na `Player` (`Player.Update`, `Player.DrawMiningUI`), vyčerpání ložiska teď řeší `World.RemoveIfDepleted(gridPos)` místo přímého sahání do `World.Resources` zvenku
+- [x] Inventářové UI (panel, sloty, drag & drop, tooltip, animace) přesunuto do nové třídy `InventoryUI` (`UI/InventoryUI.cs`) — záměrně **oddělené** od datové třídy `Inventory` (data vs. prezentace, ať jde stejná data časem zobrazit i jinak — obchodník, truhly...)
+- [x] Hit-testing/rozhodování je teď v `Update`, `Draw` jen čte hotový stav a kreslí
+- [x] Prozkoumali jsme architektonické vzory (MonoGame `GameComponent`/`Services`, ECS, prosté explicitní OOP) — vědomě zůstáváme u explicitního předávání závislostí jako parametrů, ne `Game.Services`/service locator (čitelnější pro učení, žádný skrytý stav)
+- [ ] Menší budoucí refactor: `LoadContent`/`Initialize` zatím nejsou takhle roztříděné (zatím toho tam je málo, takže nehoří) — až přibude víc assetů/inicializace, zvážit rozdělení do vlastních metod/tříd stejným způsobem
+- Konvence pro **nově psaný kód** (ať se tenhle refactor neopakuje) jsou zapsané v [`CLAUDE.md`](CLAUDE.md) v kořeni repozitáře
 
 ## Kamera
 
