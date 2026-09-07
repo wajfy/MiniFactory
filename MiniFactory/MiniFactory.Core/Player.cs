@@ -31,15 +31,20 @@ public class Player
         Inventory = new Inventory(9, 3);
     }
 
-    public void Update(GameTime gameTime, World world, MouseState mouse, Point mouseGrid)
+    public void Update(GameTime gameTime, World world, MouseState mouse, Vector2 mousePosition)
     {
         UpdatePlayerMovement(gameTime);
-        MineResource(gameTime, world, mouse, mouseGrid);
+        MineResource(gameTime, world, mouse, mousePosition);
     }
 
-    public void Draw(SpriteBatch spriteBatch, Vector2 mousePosition, Point mouseGrid, UITheme theme)
+    public void DrawWorld(SpriteBatch spriteBatch, Point mouseGrid, UITheme theme)
     {
+        DrawResourceBorder(spriteBatch, mouseGrid, theme);
         DrawCharacter(spriteBatch);
+    }
+
+    public void DrawScreen(SpriteBatch spriteBatch, Vector2 mousePosition, Point mouseGrid, UITheme theme)
+    {
         DrawMiningUI(spriteBatch, mousePosition, mouseGrid, theme);
     }
 
@@ -61,9 +66,10 @@ public class Player
         Position += direction * _speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
     }
 
-    private void MineResource(GameTime gameTime, World world, MouseState mouse, Point mouseGrid)
+    private void MineResource(GameTime gameTime, World world, MouseState mouse, Vector2 mousePosition)
     {
-        world.TryGetResourceAt(new Vector2(mouse.X, mouse.Y), out ResourceTile tile);
+        Point mouseGrid = World.PixelToGrid(mousePosition);
+        world.TryGetResourceAt(new Vector2(mousePosition.X, mousePosition.Y), out ResourceTile tile);
         if (tile != currentResourceTile)
             miningProgress = 0;
         currentResourceTile = tile;
@@ -95,12 +101,20 @@ public class Player
             inRange = false;
         }
     }
-    
+
     private void DrawCharacter(SpriteBatch spriteBatch)
     {
         spriteBatch.Draw(_texture, new Rectangle((int)Position.X, (int)Position.Y, 32, 32), Color.White);
     }
 
+    private void DrawResourceBorder(SpriteBatch spriteBatch, Point mouseGrid, UITheme theme)
+    {
+        if (inRange)
+        {
+            Vector2 corner = World.GridToPixel(mouseGrid);
+            spriteBatch.DrawHollowRect(theme.Pixel, corner, theme.Accent, borderThickness);
+        }
+    }
     private void DrawMiningUI(SpriteBatch spriteBatch, Vector2 mousePosition, Point mouseGrid, UITheme theme)
     {
         //progress
@@ -115,13 +129,6 @@ public class Player
         {
             spriteBatch.DrawString(theme.FontMedium, currentResourceTile.Type.ToString(), new Vector2(10, 10), theme.TextColor);
             spriteBatch.DrawString(theme.FontMedium, currentResourceTile.Remaining.ToString(), new Vector2(10, 60), theme.TextColor);
-
-            Vector2 corner = World.GridToPixel(mouseGrid);
-
-            if (inRange)
-            {
-                spriteBatch.DrawHollowRect(theme.Pixel, corner, theme.Accent, borderThickness);
-            }
         }
     }
 }

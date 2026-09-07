@@ -107,10 +107,15 @@ jsou teď čistý orchestrátor:
 - [ ] Menší budoucí refactor: `LoadContent`/`Initialize` zatím nejsou takhle roztříděné (zatím toho tam je málo, takže nehoří) — až přibude víc assetů/inicializace, zvážit rozdělení do vlastních metod/tříd stejným způsobem
 - Konvence pro **nově psaný kód** (ať se tenhle refactor neopakuje) jsou zapsané v [`CLAUDE.md`](CLAUDE.md) v kořeni repozitáře
 
-## Kamera
+## Kamera ✅
 
-- [ ] Kamera/zoom (Matrix transformace) — odloženo po dokončení těžby, zatím neřešeno
-- [ ] Převod velikosti `TileSize` z testovací (64px) na finální (s vektorovým artem) — závisí na kameře
+- [x] `Camera` třída (`Position`, `Zoom`, `GetTransformMatrix`) — `Matrix.CreateTranslation` + `CreateScale`, žije v `MiniFactoryGame` (ne v `Player` — kamera je sdílený "view" koncept, potřebuje ji jak `World.Draw`, tak `Player.Draw`, ne jen hráč sám)
+- [x] Kamera sleduje hráče (`camera.Position = player.Position` v `Update`)
+- [x] `Draw` rozdělený na dva `SpriteBatch.Begin`/`End` bloky — jeden s `transformMatrix:` (svět, hráč), druhý bez (UI — inventář, HUD text, progress bar)
+- [x] Inverzní transformace pozice myši (`Matrix.Invert` + `Vector2.Transform`) — `worldMousePos`/`currentMousePosGrid` se počítají **jednou** ze světové pozice a používají konzistentně všude (těžba, hover, border) — `screenMousePos` zůstává jen pro UI hit-testing
+- [ ] Plynulé sledování hráče kamerou (teď "teleportuje" okamžitě na `player.Position` — chtělo by to `Lerp`/podobné vyhlazení)
+- [ ] Ovládání přiblížení/oddálení (zoom) — zatím napevno `1f`, žádný vstup od hráče (kolečko myši?)
+- [ ] Převod velikosti `TileSize` z testovací (64px) na finální (s vektorovým artem) — závisí na doladění kamery/zoomu
 
 ## Stavění **[TBD — kompletně nenavrženo, jen zmíněno]**
 

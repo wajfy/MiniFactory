@@ -17,6 +17,8 @@ namespace MiniFactory.Core
         // Resources for drawing.
         private GraphicsDeviceManager graphicsDeviceManager;
         private SpriteBatch _spriteBatch;
+        private Camera camera;
+        private float zoom = 1f;
 
         //entities
         private Player player;
@@ -25,8 +27,9 @@ namespace MiniFactory.Core
         private OreDeposit IronDeposit;
 
         //mouse
-        private Vector2 currentMousePos;
+        private Vector2 screenMousePos;
         private Point currentMousePosGrid;
+        private Vector2 worldMousePos;
 
         //UI
         private InventoryUI inventoryUI;
@@ -99,6 +102,7 @@ namespace MiniFactory.Core
             uITheme.LoadContent(GraphicsDevice, Content);
             player = new Player(new Vector2(400, 240), uITheme.Pixel);
             world = new World();
+            camera = new Camera(player.Position, zoom);
 
             oreDeposit = new OreDeposit(0, 0);
             oreDeposit.RegisterInWorld(world);
@@ -126,9 +130,15 @@ namespace MiniFactory.Core
                 || keyboard.IsKeyDown(Keys.Escape))
                 Exit();
 
-            currentMousePos = new Vector2(mouse.X, mouse.Y);
-            currentMousePosGrid = World.PixelToGrid(currentMousePos);
-            player.Update(gameTime, world, mouse, currentMousePosGrid);
+            screenMousePos = new Vector2(mouse.X, mouse.Y);
+
+            camera.Position = player.Position;
+
+            Matrix inverse = Matrix.Invert(camera.GetTransformMatrix(GraphicsDevice.Viewport));
+            worldMousePos = Vector2.Transform(screenMousePos, inverse);
+            currentMousePosGrid = World.PixelToGrid(worldMousePos);
+
+            player.Update(gameTime, world, mouse, worldMousePos);
 
             inventoryUI.Update(gameTime, player.Inventory, mouse, keyboard, GraphicsDevice.Viewport);
 
@@ -146,12 +156,17 @@ namespace MiniFactory.Core
             // Clears the screen with the MonoGame orange color before drawing.
             GraphicsDevice.Clear(Color.Green);
 
-            _spriteBatch.Begin();
+            _spriteBatch.Begin(transformMatrix: camera.GetTransformMatrix(GraphicsDevice.Viewport));
 
             world.Draw(_spriteBatch, uITheme.Pixel);
-            player.Draw(_spriteBatch, currentMousePos, currentMousePosGrid, uITheme);
+            player.DrawWorld(_spriteBatch, currentMousePosGrid, uITheme);  
 
-            inventoryUI.Draw(_spriteBatch, player.Inventory, currentMousePos);
+            _spriteBatch.End();
+
+            _spriteBatch.Begin();
+
+            inventoryUI.Draw(_spriteBatch, player.Inventory, screenMousePos);
+            player.DrawScreen(_spriteBatch, screenMousePos, currentMousePosGrid, uITheme);
 
             _spriteBatch.End();
 
