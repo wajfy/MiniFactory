@@ -25,17 +25,20 @@ Legenda: `[x]` hotovo, `[~]` rozděláno/částečně, `[ ]` nezačato.
 - [x] Herní smyčka, `MiniFactoryGame` (Update/Draw), platformové projekty (DesktopGL/Android/iOS)
 - [x] Souřadnicový systém: `World.PixelToGrid` / `World.GridToPixel`, `TileSize` konstanta
   - [~] `TileSize` je teď testovací hodnota (64px) — finální velikost/škálování se bude řešit spolu s kamerou
-- [~] `World` — `Terrain`/`Buildings`/`Resources` dictionary, `TryGetResourceAt`
-  - `Buildings` a `Terrain` jsou zatím jen deklarované dictionary — nic je nikdy nenaplní ani nevykresluje (viz sekce "Svět / mapa" níže)
+- [~] `World` — `Terrain`/`Water` (2D pole), `Buildings`/`Resources` (dictionary), `TryGetResourceAt`
+  - `Terrain`/`Water` už se generují a vykreslují (viz sekce "Svět / mapa" níže); `Buildings` je pořád jen deklarovaný dictionary, nic ho nenaplňuje ani nevykresluje
 - [x] `.gitignore`, oprava umístění git repozitáře a `.sln`
 - [x] `.sln` se všemi projekty (Core, DesktopGL, Android, iOS)
 
-## Svět / mapa **[TBD — mapa jako taková zatím neexistuje]**
+## Svět / mapa ✅
 
-- [ ] Skutečná tilemapa/terén (tráva, cesty, různé typy podkladu) — **nic z tohohle zatím není implementováno**
-- Aktuální stav: pozadí je čistě `GraphicsDevice.Clear(Color.Green)` (placeholder barva, ne dlaždice), ložiska surovin "plavou" na téhle jednobarevné ploše bez jakéhokoliv skutečného terénu pod sebou
-- `World.Terrain` dictionary a `Tile` třída existují jako kostra, ale nikde se nepoužívají — chybí generování (i jen ruční/testovací) a vykreslování
-- [ ] Otázka k budoucímu návrhu: bude mapa ručně navržená, nebo procedurálně generovaná? Nekonečná, nebo s pevnou hranicí?
+- [x] `TerrainType` enum (zatím jen `Grass`) + `World.Terrain`/`World.Water` jako husté 2D pole (`[,]`, pevná velikost mapy) — `Resources`/`Buildings` zůstávají `Dictionary<Point, T>`, protože jsou řídká (většina buněk nic nemá)
+- [x] Skutečné dlaždice — pixel art ze "Sprout Lands" (Cup Nooble, credit nutný při zveřejnění hry), 47-dílná "blob" autotile sada (`BlobTileset`, bitmaska sousedů v `World.ComputeBitmask`)
+- [x] Voda jako oddělená vrstva (`World.Water`) — funguje i jako "moře" automaticky za hranicí mapy (`World.IsWater` s bounds-checkem, žádná data navíc potřeba)
+- [x] Ořezávání vykreslování podle viditelné oblasti kamery (`MiniFactoryGame.GetVisibleGridBounds`) — nekreslí se celá mapa, jen to, co je vidět (otestováno na 1000×1000 bez propadu výkonu)
+- [ ] **[TBD do budoucna]**: mapa je zatím jen plochý obdélník/čtverec — promyslet tvar mapy (např. ostrov s nepravidelným pobřežím místo pravoúhlé hranice), případně jestli/jak generovat procedurálně
+- Poznámka: `TerrainType` je připravený na další typy terénu (písek, cesta...) — vlastnosti podle typu (rychlost pohybu apod.) půjdou přes budoucí `TerrainDatabase`, stejný vzor jako `ItemDatabase` (per-type, ne per-instance)
+- Poznámka: podlahy zvyšující rychlost pohybu (beton apod., jako ve Factoriu) budou samostatná vrstva `Floors` (blíž `Buildings` — hráčem stavěná infrastruktura — než `Terrain`), zatím neimplementováno
 
 ## Hráč
 
