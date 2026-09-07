@@ -28,6 +28,7 @@ artifacts/
 
 # Claude Code local settings
 .claude/settings.local.json
+CLAUDE.md
 
 # macOS
 .DS_Store
