@@ -38,6 +38,7 @@ namespace MiniFactory.Core
         private bool inRange;
         private Vector2 currentMousePos;
         private Point currentMousePosGrid;
+        private MouseState previousMouse;
 
         //keyboard
         private KeyboardState previousKeyboard;
@@ -60,6 +61,11 @@ namespace MiniFactory.Core
         private Texture2D panelCornerTexture;
         private float inventorySlide = 0f;
         private float slideSpeed = 4f;
+        private int? draggingRow = null;
+        private int? draggingCol = null;
+        private Point inventoryTopLeft;
+        private int panelWidth;
+        private int panelHeight;
 
         //colors
         Color panelBackground = new Color(27, 38, 59);    // tmavě námořnická modrá — pozadí panelu
@@ -217,7 +223,45 @@ namespace MiniFactory.Core
             else
                 inventorySlide = Math.Max(0f, inventorySlide - slideSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds);
 
+            int rows = player.Inventory.Slots.GetLength(0);
+            int columns = player.Inventory.Slots.GetLength(1);
+
+            panelWidth = columns * slotSize + (columns + 1) * slotSpacing;
+            panelHeight = rows * slotSize + (rows + 1) * slotSpacing;
+
+            float inventoryTopLeftY = MathHelper.Lerp(GraphicsDevice.Viewport.Height, GraphicsDevice.Viewport.Height - panelHeight, inventorySlide);
+            inventoryTopLeft = new Point((GraphicsDevice.Viewport.Width / 2) - (panelWidth / 2), (int)inventoryTopLeftY);
+
+            bool mouseButtonPressed = mouse.LeftButton == ButtonState.Pressed && previousMouse.LeftButton == ButtonState.Released;
+            bool mouseButtonReleased = mouse.LeftButton == ButtonState.Released && previousMouse.LeftButton == ButtonState.Pressed;
+            for (int i = 0; i < columns; i++)
+            {
+                for (int j = 0; j < rows; j++)
+                {
+                    Rectangle slotRectangle = new Rectangle(inventoryTopLeft.X + slotSpacing + i * (slotSize + slotSpacing), inventoryTopLeft.Y + slotSpacing + j * (slotSize + slotSpacing), slotSize, slotSize);
+
+                    if (slotRectangle.Contains(mouse.Position) && mouseButtonPressed)
+                    {
+                        if (player.Inventory.Slots[j, i].Count > 0)
+                        {
+                            draggingRow = j;
+                            draggingCol = i;                           
+                        }
+                    }
+                    if (slotRectangle.Contains(mouse.Position) && mouseButtonReleased)
+                    {
+                        if (draggingRow.HasValue && draggingCol.HasValue)
+                            player.Inventory.MoveItem((int)draggingRow, (int)draggingCol, j, i);
+                    }
+                }
+            }
+            if (mouseButtonReleased)
+            {
+                draggingRow = null;
+                draggingCol = null;
+            }
             previousKeyboard = keyboard;
+            previousMouse = mouse;
 
             base.Update(gameTime);
         }
@@ -259,26 +303,17 @@ namespace MiniFactory.Core
 
             if (inventorySlide > 0f)
             {
-                int rows = player.Inventory.Slots.GetLength(0);
-                int columns = player.Inventory.Slots.GetLength(1);
-
-                int panelWidth = columns * slotSize + (columns + 1) * slotSpacing;
-                int panelHeight = rows * slotSize + (rows + 1) * slotSpacing;
-
-                float y = MathHelper.Lerp(GraphicsDevice.Viewport.Height, GraphicsDevice.Viewport.Height - panelHeight, inventorySlide);
-                Point inventoryTopLeft = new Point((GraphicsDevice.Viewport.Width / 2) - (panelWidth / 2), (int)y);
-
                 _spriteBatch.DrawRoundedRect(pixel, panelCornerTexture, new Rectangle(inventoryTopLeft.X, inventoryTopLeft.Y, panelWidth, panelHeight), panelBackground);
-                
+
                 ItemDefinition hoveredItem = null;
-                for (int i = 0; i < columns; i++)
+                for (int i = 0; i < player.Inventory.Slots.GetLength(1); i++)
                 {
-                    for (int j = 0; j < rows; j++)
+                    for (int j = 0; j < player.Inventory.Slots.GetLength(0); j++)
                     {
                         InventorySlot slot = player.Inventory.Slots[j, i];
                         Rectangle slotRectangle = new Rectangle(inventoryTopLeft.X + slotSpacing + i * (slotSize + slotSpacing), inventoryTopLeft.Y + slotSpacing + j * (slotSize + slotSpacing), slotSize, slotSize);
                         _spriteBatch.DrawRoundedRect(pixel, panelCornerTexture, slotRectangle, slotColor);
-                        if (slot.Count > 0)
+                        if (slot.Count > 0 && !(draggingRow == j && draggingCol == i))
                         {
                             Texture2D itemTexture = ItemDatabase.Get(slot.Type).ItemTexture;
                             Vector2 textSize = fontSmall.MeasureString(slot.Count.ToString());
@@ -296,6 +331,10 @@ namespace MiniFactory.Core
                     Vector2 boxTextSize = fontMedium.MeasureString(hoveredItem.Name);
                     _spriteBatch.Draw(pixel, new Rectangle((int)currentMousePos.X - ((int)boxTextSize.X / 2), (int)currentMousePos.Y, (int)boxTextSize.X, (int)boxTextSize.Y), new Color(0, 0, 0, 180));
                     _spriteBatch.DrawString(fontMedium, hoveredItem.Name, new Vector2((int)currentMousePos.X - ((int)boxTextSize.X / 2), (int)currentMousePos.Y), textColor);
+                }
+                if (draggingRow.HasValue && draggingCol.HasValue)
+                {
+                    _spriteBatch.Draw(ItemDatabase.Get(player.Inventory.Slots[(int)draggingRow, (int)draggingCol].Type).ItemTexture, new Rectangle((int)currentMousePos.X - (slotSize / 2), (int)currentMousePos.Y - (slotSize / 2), slotSize, slotSize), new Color(255, 255, 255, 180));
                 }
             }
 

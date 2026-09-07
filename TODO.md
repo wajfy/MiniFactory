@@ -85,8 +85,20 @@ Hotovo zatím (samotný inventářový panel):
 - [x] Hover tooltip nad slotem (název itemu)
 - [x] Vlastní fonty ve 3 velikostech (`fontSmall`/`fontMedium`/`fontLarge`) místo runtime `scale`
 - [ ] Tooltip — cena/popis (teď jen název) **[TBD]** — chceme zobrazit i `Description`/`Price`?
-- [ ] Přesouvání itemů mezi sloty (drag & drop)
+- [x] Přesouvání itemů mezi sloty (drag & drop) — swap i slučování stejného typu s ohledem na `StackSize`
+  - [ ] Drobný dodělek: tažení by mělo jít začít jen z neprázdného slotu (`slot.Count > 0`), teď jde "tahat" i prázdný slot
 - [ ] Co se stane, když je inventář plný a nejde přidat další item **[TBD]**
+
+## Refactor `MiniFactoryGame.cs`
+
+Naplánováno hned po dokončení inventáře. Třída teď má přes 300 řádků a `Update`/`Draw`
+obsahují hodně přímé logiky, místo aby jen volaly `NěcoJiného.Update()`/`.Draw()`
+(tak, jak už to funguje pro `world`/`player`). Cíl: `MiniFactoryGame` by měl fungovat hlavně
+jako orchestrátor, ne místo, kde žije implementace.
+
+- [ ] Projít celý soubor a najít, co jde vytáhnout do vlastních tříd (nejnápadnější kandidát: inventářové UI — panel, sloty, drag & drop, tooltip — ale platí to obecně, kdekoliv to dá smysl, ne jen u inventáře)
+- [ ] Mining logika (hover/dosah/progress) je taky přímo v `Update`/`Draw` — zvážit, jestli si nezaslouží vlastní místo
+- [ ] Cíl: v `Update`/`Draw` hlavně volání jako `inventoryUI.Update(...)`, `inventoryUI.Draw(...)`, podobně jako `world.Draw(...)`/`player.Draw(...)` teď
 
 ## Kamera
 
