@@ -11,6 +11,7 @@ public class Player
     public int MiningRange = 200;
     public float MiningSpeed = 3f;
     public Inventory Inventory;
+    private const int Size = 32;
 
     private bool inRange { get; set; }
     private ResourceTile currentResourceTile { get; set; }
@@ -33,7 +34,7 @@ public class Player
 
     public void Update(GameTime gameTime, World world, MouseState mouse, Vector2 mousePosition)
     {
-        UpdatePlayerMovement(gameTime);
+        UpdatePlayerMovement(gameTime, world);
         MineResource(gameTime, world, mouse, mousePosition);
     }
 
@@ -48,7 +49,7 @@ public class Player
         DrawMiningUI(spriteBatch, mousePosition, mouseGrid, theme);
     }
 
-    private void UpdatePlayerMovement(GameTime gameTime)
+    private void UpdatePlayerMovement(GameTime gameTime, World world)
     {
         KeyboardState keyboard = Keyboard.GetState();
 
@@ -63,9 +64,33 @@ public class Player
         if (keyboard.IsKeyDown(Keys.D))
             direction.X += 1;
 
-        Position += direction * _speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-    }
+        Vector2 movement = direction * _speed * (float)gameTime.ElapsedGameTime.TotalSeconds;
+        float newX = Position.X + movement.X;
+       
+        Rectangle rectAtNewX = new Rectangle((int)newX, (int)Position.Y, Size, Size);
+        if (!OverlapsWater(world, rectAtNewX))
+            Position = new Vector2(newX, Position.Y);
 
+        float newY = Position.Y + movement.Y;
+        Rectangle rectAtNewY = new Rectangle((int)Position.X, (int)newY, Size, Size);
+        if (!OverlapsWater(world, rectAtNewY))
+            Position = new Vector2(Position.X, newY);
+    }
+    private bool OverlapsWater(World world, Rectangle rect)
+    {
+        Point topLeft = World.PixelToGrid(new Vector2(rect.Left, rect.Top));
+        Point bottomRight = World.PixelToGrid(new Vector2(rect.Right - 1, rect.Bottom - 1));
+
+        for (int i = topLeft.X; i <= bottomRight.X; i++)
+        {
+            for (int j = topLeft.Y; j <= bottomRight.Y; j++)
+            {
+                if(world.IsWater(i, j))
+                    return true;
+            }
+        }
+        return false;
+    }
     private void MineResource(GameTime gameTime, World world, MouseState mouse, Vector2 mousePosition)
     {
         Point mouseGrid = World.PixelToGrid(mousePosition);
@@ -104,7 +129,7 @@ public class Player
 
     private void DrawCharacter(SpriteBatch spriteBatch)
     {
-        spriteBatch.Draw(_texture, new Rectangle((int)Position.X, (int)Position.Y, 32, 32), Color.White);
+        spriteBatch.Draw(_texture, new Rectangle((int)Position.X, (int)Position.Y, Size, Size), Color.White);
     }
 
     private void DrawResourceBorder(SpriteBatch spriteBatch, Point mouseGrid, UITheme theme)

@@ -23,8 +23,6 @@ namespace MiniFactory.Core
         //entities
         private Player player;
         private World world;
-        private OreDeposit oreDeposit;
-        private OreDeposit IronDeposit;
 
         //mouse
         private Vector2 screenMousePos;
@@ -101,16 +99,13 @@ namespace MiniFactory.Core
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             uITheme.LoadContent(GraphicsDevice, Content);
             player = new Player(new Vector2(400, 240), uITheme.Pixel);
-            world = new World();
+            world = new World(16, 16);
+            world.LoadContent(Content);
             camera = new Camera(player.Position, zoom);
 
-            oreDeposit = new OreDeposit(0, 0);
-            oreDeposit.RegisterInWorld(world);
-
-            IronDeposit = new OreDeposit(5, 5, 5, 5, ItemType.IronOre);
-            IronDeposit.RegisterInWorld(world);
-
             ItemDatabase.LoadContent(Content);
+            OreTileset.LoadContent(Content);
+
             base.LoadContent();
         }
 
@@ -139,8 +134,8 @@ namespace MiniFactory.Core
             currentMousePosGrid = World.PixelToGrid(worldMousePos);
 
             player.Update(gameTime, world, mouse, worldMousePos);
-
             inventoryUI.Update(gameTime, player.Inventory, mouse, keyboard, GraphicsDevice.Viewport);
+            world.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -156,14 +151,16 @@ namespace MiniFactory.Core
             // Clears the screen with the MonoGame orange color before drawing.
             GraphicsDevice.Clear(Color.Green);
 
-            _spriteBatch.Begin(transformMatrix: camera.GetTransformMatrix(GraphicsDevice.Viewport));
+            Rectangle visibleGridBounds = GetVisibleGridBounds();
 
-            world.Draw(_spriteBatch, uITheme.Pixel);
-            player.DrawWorld(_spriteBatch, currentMousePosGrid, uITheme);  
+            _spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: camera.GetTransformMatrix(GraphicsDevice.Viewport));
+
+            world.Draw(_spriteBatch, visibleGridBounds);
+            player.DrawWorld(_spriteBatch, currentMousePosGrid, uITheme);
 
             _spriteBatch.End();
 
-            _spriteBatch.Begin();
+            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
             inventoryUI.Draw(_spriteBatch, player.Inventory, screenMousePos);
             player.DrawScreen(_spriteBatch, screenMousePos, currentMousePosGrid, uITheme);
@@ -171,6 +168,30 @@ namespace MiniFactory.Core
             _spriteBatch.End();
 
             base.Draw(gameTime);
+        }
+
+        /// <summary>
+        /// Spočítá, které dlaždice gridu jsou aktuálně vidět v kameře (plus malá rezerva,
+        /// aby se dlaždice neobjevovaly/nemizely přesně na hraně obrazovky), aby World.Draw
+        /// nemusel kreslit celou mapu, ale jen to, co se reálně vejde do viewportu.
+        /// </summary>
+        private Rectangle GetVisibleGridBounds()
+        {
+            const int cullMargin = 1;
+
+            Matrix inverseTransform = Matrix.Invert(camera.GetTransformMatrix(GraphicsDevice.Viewport));
+            Vector2 topLeft = Vector2.Transform(Vector2.Zero, inverseTransform);
+            Vector2 bottomRight = Vector2.Transform(
+                new Vector2(GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height), inverseTransform);
+
+            Point minGrid = World.PixelToGrid(topLeft);
+            Point maxGrid = World.PixelToGrid(bottomRight);
+
+            return new Rectangle(
+                minGrid.X - cullMargin,
+                minGrid.Y - cullMargin,
+                maxGrid.X - minGrid.X + 1 + cullMargin * 2,
+                maxGrid.Y - minGrid.Y + 1 + cullMargin * 2);
         }
     }
 }
