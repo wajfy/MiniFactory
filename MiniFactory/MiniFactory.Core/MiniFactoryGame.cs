@@ -30,7 +30,7 @@ namespace MiniFactory.Core
         private Vector2 worldMousePos;
 
         //UI
-        private InventoryUI inventoryUI;
+        private GameMenu gameMenu;
         private UITheme uITheme;
 
         /// <summary>
@@ -73,7 +73,7 @@ namespace MiniFactory.Core
             IsMouseVisible = true;
 
             uITheme = new UITheme();
-            inventoryUI = new InventoryUI(uITheme);
+            gameMenu = new GameMenu(uITheme);
 
             base.Initialize();
 
@@ -96,16 +96,16 @@ namespace MiniFactory.Core
         /// </summary>
         protected override void LoadContent()
         {
+            ItemDatabase.LoadContent(Content);
+            OreTileset.LoadContent(Content);
+
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             uITheme.LoadContent(GraphicsDevice, Content);
             player = new Player(new Vector2(400, 240), uITheme.Pixel);
             world = new World(16, 16);
             world.LoadContent(Content);
             camera = new Camera(player.Position, zoom);
-
-            ItemDatabase.LoadContent(Content);
-            OreTileset.LoadContent(Content);
-
+            
             base.LoadContent();
         }
 
@@ -133,8 +133,8 @@ namespace MiniFactory.Core
             worldMousePos = Vector2.Transform(screenMousePos, inverse);
             currentMousePosGrid = World.PixelToGrid(worldMousePos);
 
+            gameMenu.Update(gameTime, player, mouse, keyboard, GraphicsDevice.Viewport);
             player.Update(gameTime, world, mouse, worldMousePos);
-            inventoryUI.Update(gameTime, player.Inventory, mouse, keyboard, GraphicsDevice.Viewport);
             world.Update(gameTime);
 
             base.Update(gameTime);
@@ -162,7 +162,7 @@ namespace MiniFactory.Core
 
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
-            inventoryUI.Draw(_spriteBatch, player.Inventory, screenMousePos);
+            gameMenu.Draw(_spriteBatch, player, screenMousePos);
             player.DrawScreen(_spriteBatch, screenMousePos, currentMousePosGrid, uITheme);
 
             _spriteBatch.End();

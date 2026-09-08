@@ -5,21 +5,16 @@ using Microsoft.Xna.Framework.Input;
 
 public class InventoryUI
 {
-    private bool inventoryOpen = false;
-
     private const int slotSize = 36;
     private const int slotSpacing = 8;
     private const int borderOffset = 5;
     private int? draggingRow = null;
     private int? draggingCol = null;
-    private float inventorySlide = 0f;
-    private float slideSpeed = 4f;
     private Point inventoryTopLeft;
     private int panelWidth;
     private int panelHeight;
 
     private MouseState previousMouse;
-    private KeyboardState previousKeyboard;
 
     private UITheme theme;
 
@@ -28,17 +23,8 @@ public class InventoryUI
         this.theme = theme;
     }
 
-    public void Update(GameTime gameTime, Inventory inventory, MouseState mouse, KeyboardState keyboard, Viewport viewport)
+    public void Update(Inventory inventory, MouseState mouse, Viewport viewport, float inventorySlide)
     {
-        if (keyboard.IsKeyDown(Keys.Tab) && previousKeyboard.IsKeyUp(Keys.Tab))
-        {
-            inventoryOpen = !inventoryOpen;
-        }
-        if (inventoryOpen)
-            inventorySlide = Math.Min(1f, inventorySlide + slideSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds);
-        else
-            inventorySlide = Math.Max(0f, inventorySlide - slideSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds);
-
         int rows = inventory.Slots.GetLength(0);
         int columns = inventory.Slots.GetLength(1);
 
@@ -76,52 +62,49 @@ public class InventoryUI
             draggingRow = null;
             draggingCol = null;
         }
-        previousKeyboard = keyboard;
         previousMouse = mouse;
     }
 
-    public void Draw(SpriteBatch spriteBatch, Inventory inventory, Vector2 currentMousePos)
+    public void Draw(SpriteBatch spriteBatch, Inventory inventory, Vector2 currentMousePos, float inventorySlide)
     {
-        if (inventorySlide > 0f)
+        if (inventorySlide == 0f) return;
+
+        spriteBatch.DrawRoundedRect(theme.Pixel, theme.CornerTexture, new Rectangle(inventoryTopLeft.X, inventoryTopLeft.Y - borderOffset, panelWidth, panelHeight), theme.SlotBorder);
+        spriteBatch.DrawRoundedRect(theme.Pixel, theme.CornerTexture, new Rectangle(inventoryTopLeft.X, inventoryTopLeft.Y, panelWidth, panelHeight), theme.PanelBackground);
+
+        ItemDefinition hoveredItem = null;
+        for (int i = 0; i < inventory.Slots.GetLength(1); i++)
         {
-            spriteBatch.DrawRoundedRect(theme.Pixel, theme.CornerTexture, new Rectangle(inventoryTopLeft.X, inventoryTopLeft.Y - borderOffset, panelWidth, panelHeight), theme.SlotBorder);
-            spriteBatch.DrawRoundedRect(theme.Pixel, theme.CornerTexture, new Rectangle(inventoryTopLeft.X, inventoryTopLeft.Y, panelWidth, panelHeight), theme.PanelBackground);
-
-            ItemDefinition hoveredItem = null;
-            for (int i = 0; i < inventory.Slots.GetLength(1); i++)
+            for (int j = 0; j < inventory.Slots.GetLength(0); j++)
             {
-                for (int j = 0; j < inventory.Slots.GetLength(0); j++)
+                InventorySlot slot = inventory.Slots[j, i];
+                Rectangle slotRectangle = new Rectangle(inventoryTopLeft.X + slotSpacing + i * (slotSize + slotSpacing), inventoryTopLeft.Y + slotSpacing + j * (slotSize + slotSpacing), slotSize, slotSize);
+
+                Rectangle slotBorderRectangle = slotRectangle;
+                slotBorderRectangle.Y -= borderOffset;
+                spriteBatch.DrawRoundedRect(theme.Pixel, theme.CornerTexture, slotBorderRectangle, theme.SlotBorder);
+                spriteBatch.DrawRoundedRect(theme.Pixel, theme.CornerTexture, slotRectangle, theme.SlotColor);
+                if (slot.Count > 0 && !(draggingRow == j && draggingCol == i))
                 {
-                    InventorySlot slot = inventory.Slots[j, i];
-                    Rectangle slotRectangle = new Rectangle(inventoryTopLeft.X + slotSpacing + i * (slotSize + slotSpacing), inventoryTopLeft.Y + slotSpacing + j * (slotSize + slotSpacing), slotSize, slotSize);
-                    
-                    Rectangle slotBorderRectangle = slotRectangle;
-                    slotBorderRectangle.Y -= borderOffset;
-                    spriteBatch.DrawRoundedRect(theme.Pixel, theme.CornerTexture, slotBorderRectangle, theme.SlotBorder);
-                    spriteBatch.DrawRoundedRect(theme.Pixel, theme.CornerTexture, slotRectangle, theme.SlotColor);
-                    if (slot.Count > 0 && !(draggingRow == j && draggingCol == i))
-                    {
-                        Texture2D itemTexture = ItemDatabase.Get(slot.Type).ItemTexture;
-                        Vector2 textSize = theme.FontSmall.MeasureString(slot.Count.ToString());
-                        float textY = slotRectangle.Bottom - textSize.Y;
-                        spriteBatch.Draw(itemTexture, slotRectangle, Color.White);
-                        spriteBatch.DrawString(theme.FontSmall, slot.Count.ToString(), new Vector2(slotRectangle.X, (int)textY), theme.TextColor);
-                    }
-
-                    if (slotRectangle.Contains(currentMousePos) && slot.Count > 0)
-                        hoveredItem = ItemDatabase.Get(slot.Type);
+                    Vector2 textSize = theme.FontSmall.MeasureString(slot.Count.ToString());
+                    float textY = slotRectangle.Bottom - textSize.Y;
+                    spriteBatch.Draw(ItemDatabase.Textures, slotRectangle, ItemDatabase.Get(slot.Type).ItemSourceRect, Color.White);
+                    spriteBatch.DrawString(theme.FontSmall, slot.Count.ToString(), new Vector2(slotRectangle.X, (int)textY), theme.TextColor);
                 }
+
+                if (slotRectangle.Contains(currentMousePos) && slot.Count > 0)
+                    hoveredItem = ItemDatabase.Get(slot.Type);
             }
-            if (hoveredItem != null)
-            {
-                Vector2 boxTextSize = theme.FontSmall.MeasureString(hoveredItem.Name);
-                spriteBatch.Draw(theme.Pixel, new Rectangle((int)currentMousePos.X - ((int)boxTextSize.X / 2), (int)currentMousePos.Y, (int)boxTextSize.X, (int)boxTextSize.Y), new Color(0, 0, 0, 180));
-                spriteBatch.DrawString(theme.FontSmall, hoveredItem.Name, new Vector2((int)currentMousePos.X - ((int)boxTextSize.X / 2), (int)currentMousePos.Y), theme.TextColor);
-            }
-            if (draggingRow.HasValue && draggingCol.HasValue)
-            {
-                spriteBatch.Draw(ItemDatabase.Get(inventory.Slots[(int)draggingRow, (int)draggingCol].Type).ItemTexture, new Rectangle((int)currentMousePos.X - (slotSize / 2), (int)currentMousePos.Y - (slotSize / 2), slotSize, slotSize), new Color(255, 255, 255, 180));
-            }
+        }
+        if (hoveredItem != null)
+        {
+            Vector2 boxTextSize = theme.FontSmall.MeasureString(hoveredItem.Name);
+            spriteBatch.Draw(theme.Pixel, new Rectangle((int)currentMousePos.X - ((int)boxTextSize.X / 2), (int)currentMousePos.Y, (int)boxTextSize.X, (int)boxTextSize.Y), new Color(0, 0, 0, 180));
+            spriteBatch.DrawString(theme.FontSmall, hoveredItem.Name, new Vector2((int)currentMousePos.X - ((int)boxTextSize.X / 2), (int)currentMousePos.Y), theme.TextColor);
+        }
+        if (draggingRow.HasValue && draggingCol.HasValue)
+        {
+            spriteBatch.Draw(ItemDatabase.Textures, new Rectangle((int)currentMousePos.X - (slotSize / 2), (int)currentMousePos.Y - (slotSize / 2), slotSize, slotSize), ItemDatabase.Get(inventory.Slots[(int)draggingRow, (int)draggingCol].Type).ItemSourceRect, new Color(255, 255, 255, 180));
         }
     }
 }

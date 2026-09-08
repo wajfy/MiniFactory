@@ -11,6 +11,7 @@ public class Player
     public int MiningRange = 200;
     public float MiningSpeed = 3f;
     public Inventory Inventory;
+    public float Money = 123456;
     private const int Size = 32;
 
     private bool inRange { get; set; }
@@ -30,6 +31,11 @@ public class Player
         Position = startPosition;
         _texture = texture;
         Inventory = new Inventory(9, 3);
+
+        foreach (var item in ItemDatabase.GetAll())
+        {
+            Inventory.TryAddItem(item.Key, 100);
+        }
     }
 
     public void Update(GameTime gameTime, World world, MouseState mouse, Vector2 mousePosition)

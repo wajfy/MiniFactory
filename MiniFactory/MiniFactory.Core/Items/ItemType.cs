@@ -5,6 +5,11 @@ public enum ItemType
     Coal = 1,
     IronOre = 2,
     CopperOre = 3,
+    IronSheet = 4,
+    CopperSheet = 5,
+    IronCogWheel = 6,
+    CopperWire = 7,
+    StoneBrick = 8,
     
     //300 - 599 buildable
     MinerTierOne = 300,
