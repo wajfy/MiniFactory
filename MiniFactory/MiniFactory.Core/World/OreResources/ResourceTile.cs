@@ -1,10 +1,6 @@
 using System;
-using MiniFactory.Core.Localization;
-using System.Collections.Generic;
-using System.Globalization;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Input;
 
 public class ResourceTile
 {
@@ -23,24 +19,7 @@ public class ResourceTile
     {
         ParentDeposit = parent;
         Type = type;
-        Remaining = remaining > 0 ? remaining : _random.Next(5, 10);
-    }
-
-    private Color GetColor()
-    {
-        switch (Type)
-        {
-            case ItemType.Stone:
-                return Color.Gray;
-            case ItemType.Coal:
-                return Color.Black;
-            case ItemType.IronOre:
-                return Color.SandyBrown;
-            case ItemType.CopperOre:
-                return Color.OrangeRed;
-            default:
-                return Color.Pink;
-        }
+        Remaining = remaining > 0 ? remaining : _random.Next(10, 1500);
     }
 
     public void Update(GameTime gameTime)
@@ -48,8 +27,8 @@ public class ResourceTile
 
     }
 
-    public void Draw(SpriteBatch spriteBatch, Vector2 position, Texture2D texture)
+    public void Draw(SpriteBatch spriteBatch, Vector2 position)
     {
-        spriteBatch.Draw(texture, new Rectangle((int)position.X, (int)position.Y, World.TileSize, World.TileSize), GetColor());
+        spriteBatch.Draw(OreTileset.OreTextures, new Rectangle((int)position.X, (int)position.Y, World.TileSize, World.TileSize), OreTileset.GetSourceRect(Type, Remaining), Color.White);
     }
 }

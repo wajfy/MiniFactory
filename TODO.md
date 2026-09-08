@@ -36,6 +36,10 @@ Legenda: `[x]` hotovo, `[~]` rozděláno/částečně, `[ ]` nezačato.
 - [x] Skutečné dlaždice — pixel art ze "Sprout Lands" (Cup Nooble, credit nutný při zveřejnění hry), 47-dílná "blob" autotile sada (`BlobTileset`, bitmaska sousedů v `World.ComputeBitmask`)
 - [x] Voda jako oddělená vrstva (`World.Water`) — funguje i jako "moře" automaticky za hranicí mapy (`World.IsWater` s bounds-checkem, žádná data navíc potřeba)
 - [x] Ořezávání vykreslování podle viditelné oblasti kamery (`MiniFactoryGame.GetVisibleGridBounds`) — nekreslí se celá mapa, jen to, co je vidět (otestováno na 1000×1000 bez propadu výkonu)
+- [x] Animovaná voda (`Water.png`, 4 snímky) — `World.AnimateWater` přepíná snímek podle časovače, volané z `World.Update`
+- [x] Kolize hráče s vodou — `Player.OverlapsWater` kontroluje celý `Size×Size` obdélník hráče (ne jen bod), X/Y pohyb se řeší nezávisle (plynulé sklouznutí podél pobřeží); voda mimo mapu (`IsWater` bounds-check) tak zároveň funguje jako přirozená hranice hratelné oblasti
+- [x] Ore deposity přesunuté z `MiniFactoryGame` do `World` (`World.OreDeposits`, generované v konstruktoru)
+- [x] Vizuál rud podle vytěženosti — `OreTileset` (statická třída, `OreResources/`), 4×4 atlas (řádek = druh rudy, sloupec = stupeň vytěženosti podle `Remaining`)
 - [ ] **[TBD do budoucna]**: mapa je zatím jen plochý obdélník/čtverec — promyslet tvar mapy (např. ostrov s nepravidelným pobřežím místo pravoúhlé hranice), případně jestli/jak generovat procedurálně
 - Poznámka: `TerrainType` je připravený na další typy terénu (písek, cesta...) — vlastnosti podle typu (rychlost pohybu apod.) půjdou přes budoucí `TerrainDatabase`, stejný vzor jako `ItemDatabase` (per-type, ne per-instance)
 - Poznámka: podlahy zvyšující rychlost pohybu (beton apod., jako ve Factoriu) budou samostatná vrstva `Floors` (blíž `Buildings` — hráčem stavěná infrastruktura — než `Terrain`), zatím neimplementováno

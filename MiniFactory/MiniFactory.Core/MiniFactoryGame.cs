@@ -23,8 +23,6 @@ namespace MiniFactory.Core
         //entities
         private Player player;
         private World world;
-        private OreDeposit oreDeposit;
-        private OreDeposit IronDeposit;
 
         //mouse
         private Vector2 screenMousePos;
@@ -101,17 +99,13 @@ namespace MiniFactory.Core
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             uITheme.LoadContent(GraphicsDevice, Content);
             player = new Player(new Vector2(400, 240), uITheme.Pixel);
-            world = new World(100, 100);
+            world = new World(16, 16);
             world.LoadContent(Content);
             camera = new Camera(player.Position, zoom);
 
-            oreDeposit = new OreDeposit(1, 1);
-            oreDeposit.RegisterInWorld(world);
-
-            IronDeposit = new OreDeposit(6, 6, 5, 5, ItemType.IronOre);
-            IronDeposit.RegisterInWorld(world);
-
             ItemDatabase.LoadContent(Content);
+            OreTileset.LoadContent(Content);
+
             base.LoadContent();
         }
 
@@ -140,8 +134,8 @@ namespace MiniFactory.Core
             currentMousePosGrid = World.PixelToGrid(worldMousePos);
 
             player.Update(gameTime, world, mouse, worldMousePos);
-
             inventoryUI.Update(gameTime, player.Inventory, mouse, keyboard, GraphicsDevice.Viewport);
+            world.Update(gameTime);
 
             base.Update(gameTime);
         }
@@ -161,12 +155,12 @@ namespace MiniFactory.Core
 
             _spriteBatch.Begin(samplerState: SamplerState.PointClamp, transformMatrix: camera.GetTransformMatrix(GraphicsDevice.Viewport));
 
-            world.Draw(_spriteBatch, uITheme.Pixel, visibleGridBounds);
+            world.Draw(_spriteBatch, visibleGridBounds);
             player.DrawWorld(_spriteBatch, currentMousePosGrid, uITheme);
 
             _spriteBatch.End();
 
-            _spriteBatch.Begin();
+            _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
 
             inventoryUI.Draw(_spriteBatch, player.Inventory, screenMousePos);
             player.DrawScreen(_spriteBatch, screenMousePos, currentMousePosGrid, uITheme);
@@ -196,8 +190,8 @@ namespace MiniFactory.Core
             return new Rectangle(
                 minGrid.X - cullMargin,
                 minGrid.Y - cullMargin,
-                (maxGrid.X - minGrid.X) + 1 + cullMargin * 2,
-                (maxGrid.Y - minGrid.Y) + 1 + cullMargin * 2);
+                maxGrid.X - minGrid.X + 1 + cullMargin * 2,
+                maxGrid.Y - minGrid.Y + 1 + cullMargin * 2);
         }
     }
 }

@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework.Content;
 public class World
 {
     public const int TileSize = 64;
+    public const int TextureSize = 16;
 
     // Konvence bitů sousedů (viz BlobTileset): N=1, NE=2, E=4, SE=8, S=16, SW=32, W=64, NW=128.
     private const int BitN = 1, BitNE = 2, BitE = 4, BitSE = 8, BitS = 16, BitSW = 32, BitW = 64, BitNW = 128;
@@ -15,14 +16,25 @@ public class World
     public bool[,] Water;
     public Dictionary<Point, Building> Buildings { get; set; }
     public Dictionary<Point, ResourceTile> Resources { get; set; }
+    public List<OreDeposit> OreDeposits { get; set; }
 
     private BlobTileset _grassTileset;
     private Texture2D _water;
+
+    private float _animWaterTimer = 0f;
+    private int _waterFrame = 0;
 
     public World(int mapWidth, int mapHeight)
     {
         Buildings = new Dictionary<Point, Building>();
         Resources = new Dictionary<Point, ResourceTile>();
+        OreDeposits = new List<OreDeposit>()
+        {
+            new OreDeposit(1, 1),
+            new OreDeposit(1, 6, 5, 5, ItemType.IronOre),
+            new OreDeposit(6, 1, 5, 5, ItemType.CopperOre),
+            new OreDeposit(6, 6, 5, 5, ItemType.Coal)
+        };
 
         Terrain = new TerrainType[mapWidth, mapHeight];
         Water = new bool[mapWidth, mapHeight];
@@ -30,6 +42,9 @@ public class World
         for (int width = 0; width < mapWidth; width++)
             for (int height = 0; height < mapHeight; height++)
                 Terrain[width, height] = TerrainType.Grass;
+
+        foreach (OreDeposit deposit in OreDeposits)
+            deposit.RegisterInWorld(this);
     }
 
     public void LoadContent(ContentManager content)
@@ -40,16 +55,16 @@ public class World
 
     public void Update(GameTime gameTime)
     {
-
+        AnimateWater(gameTime);
     }
 
-    public void Draw(SpriteBatch spriteBatch, Texture2D texture, Rectangle visibleGridBounds)
+    public void Draw(SpriteBatch spriteBatch, Rectangle visibleGridBounds)
     {
         DrawTerrain(spriteBatch, visibleGridBounds);
 
         foreach (var resource in Resources)
         {
-            resource.Value.Draw(spriteBatch, GridToPixel(resource.Key), texture);
+            resource.Value.Draw(spriteBatch, GridToPixel(resource.Key));
         }
     }
 
@@ -66,7 +81,7 @@ public class World
                 Rectangle destRect = new Rectangle((int)pixelPos.X, (int)pixelPos.Y, TileSize, TileSize);
 
                 // Voda je vždy podklad - i pod (průhlednými okraji) trávy.
-                spriteBatch.Draw(_water, destRect, Color.White);
+                spriteBatch.Draw(_water, destRect, new Rectangle(_waterFrame * TextureSize, 0, TextureSize, TextureSize), Color.White);
 
                 bool inBounds = x >= 0 && y >= 0 && x < mapWidth && y < mapHeight;
                 if (inBounds && !IsWater(x, y))
@@ -76,6 +91,18 @@ public class World
                     spriteBatch.Draw(_grassTileset.Texture, destRect, sourceRect, Color.White);
                 }
             }
+        }
+    }
+
+    private void AnimateWater(GameTime gameTime)
+    {
+        _animWaterTimer += (float)gameTime.ElapsedGameTime.TotalSeconds;
+        if (_animWaterTimer > 0.15)
+        {
+            _animWaterTimer = 0;
+            _waterFrame += 1;
+            if(_waterFrame > 3)
+                _waterFrame = 0;
         }
     }
 
